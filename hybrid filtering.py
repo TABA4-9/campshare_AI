@@ -4,8 +4,12 @@ import numpy as np
 import csv
 import pandas as pd
 from collections import defaultdict
+from flask import Flask, request, jsonify
 
-excel_path = 'C:/Users/ods00/OneDrive/바탕 화면/TABA-campshare/danawa.csv'  # Replace with the path to your Excel file
+
+app = Flask(__name__)
+
+excel_path = 'C:\Project\PycharmProjects\Danawa_crawl\danawa.csv'  # Replace with the path to your Excel file
 df = pd.read_csv(excel_path, encoding='cp949')
 df = df.drop_duplicates(subset='NAME')
 # 'NAME' 컬럼에서 브랜드 이름을 분리
@@ -17,7 +21,7 @@ df['PRODUCT'] = df['NAME'].apply(lambda x: ' '.join(x.split(' ')[1:]))
 cooccurrence_matrix = defaultdict(lambda: defaultdict(int))
 
 # CSV 파일을 읽어서 사용자별 조회 로그를 파싱
-with open('C:/Users/ods00/OneDrive/바탕 화면/TABA-campshare/userlog.csv', 'r') as file:
+with open('C:/Project/PycharmProjects/campshare_AI/userlog.csv', 'r') as file:
     reader = csv.reader(file)
     next(reader)  # 헤더 스킵
     for row in reader:
@@ -120,3 +124,20 @@ hybrid_recommendations = hybrid_recommend_products(user_viewed_product, selected
 print("하이브리드 추천 결과:")
 for product in hybrid_recommendations:
     print(product)
+
+
+@app.route('/recommend', methods=['POST'])
+def recommend():
+    data = request.json
+    user_viewed_product = data.get('user_viewed_product')
+    selected_product = data.get('selected_product')
+
+    # 하이브리드 추천 시스템 함수 호출
+    recommendations = hybrid_recommend_products(user_viewed_product, selected_product, cooccurrence_matrix,
+                                                similarity_df)
+
+    return jsonify({'recommendations': recommendations})
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
