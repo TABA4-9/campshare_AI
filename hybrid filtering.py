@@ -8,7 +8,7 @@ import numpy as np
 app = Flask(__name__)
 
 # Excel 파일 읽기 (파일 경로와 인코딩은 실제 상황에 맞게 조정해야 합니다.)
-excel_path = 'C:/Project/PycharmProjects/Danawa_crawl/danawa.csv'
+excel_path = 'danawa.csv'
 df = pd.read_csv(excel_path, encoding='cp949')
 df = df.drop_duplicates(subset='NAME')
 df['BRAND'] = df['NAME'].apply(lambda x: x.split(' ')[0])
